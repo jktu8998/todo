@@ -13,8 +13,8 @@ import java.util.List;
 public class GetNewsDto {
     private List<Tasks> content;
     private int notReady;
-    private int numberOfElement;
     private int ready;
+    private int numberOfElement;
 
 //    public GetNewsDto(T content) {
 //        this.content = content;

@@ -13,4 +13,8 @@ public interface TasksRepository extends JpaRepository<Tasks,Integer> {
    List<Tasks> findAll();
 
    Page<Tasks> findByStatus(boolean status, Pageable pageable);
+//   Tasks updateStatus(Integer id, Boolean status);
+//   List<Tasks> save(List<Tasks> list);
+
+
 }

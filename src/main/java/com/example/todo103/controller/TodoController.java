@@ -1,24 +1,20 @@
 package com.example.todo103.controller;
 
+import com.example.todo103.dto.ChangeStatusTodoDto;
 import com.example.todo103.dto.CreatedTodoDto;
-import com.example.todo103.dto.CustomSuccessResponse;
+import com.example.todo103.response.BaseSuccessResponse;
+import com.example.todo103.response.CustomSuccessResponse;
 import com.example.todo103.dto.GetNewsDto;
 import com.example.todo103.entity.Tasks;
 import com.example.todo103.service.TasksService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.config.Task;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/v1/todo")
@@ -40,6 +36,7 @@ public class TodoController {
         response.setSuccess(true);
         return response;
     }
+
     @GetMapping(value = "/get")
     public ResponseEntity<?> get(){
         ArrayList<Tasks> list=service.get();
@@ -54,6 +51,19 @@ public class TodoController {
 
         CustomSuccessResponse<GetNewsDto>response=service.getAll(page,perPage,status);
         return response;
+    }
+
+    @PatchMapping(value = "/patch")
+    public BaseSuccessResponse setStatus(@RequestBody ChangeStatusTodoDto status){
+        return service.setAllStatus(status);
+    }
+
+    @PatchMapping(value = "/status")
+    public BaseSuccessResponse setByIdStatus(@RequestParam(value = "id")Integer id,
+                                             @RequestBody ChangeStatusTodoDto status){
+
+        service.updateStatus(id,status);
+        return new BaseSuccessResponse(0,true);
     }
 
 

@@ -1,15 +1,13 @@
 package com.example.todo103.service;
 
-import com.example.todo103.dto.CreatedTodoDto;
-import com.example.todo103.dto.CustomSuccessResponse;
+import com.example.todo103.dto.ChangeStatusTodoDto;
+import com.example.todo103.response.BaseSuccessResponse;
+import com.example.todo103.response.CustomSuccessResponse;
 import com.example.todo103.dto.GetNewsDto;
 import com.example.todo103.entity.Tasks;
 import com.example.todo103.repository.TasksRepository;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,10 +18,12 @@ import java.util.List;
 @Service
 public class TasksService {
     private final TasksRepository repository;
-
+    private List<Tasks> tasksList;
     public TasksRepository getRepository() {
         return repository;
     }
+
+
 
     @Autowired
     public TasksService(TasksRepository repository) {
@@ -59,9 +59,9 @@ public class TasksService {
          GetNewsDto newsDto  = new GetNewsDto(
                 pageResult.getContent(),
                 // ... calculate notReady, ready, numberOfElements
-                getNotReady(), // Replace with actual counts
-                 getNumberOfElement(),
-                 getReady() // Replace with actual counts
+                 (int) pageResult.getContent().stream().filter(task -> !task.isStatus()).count(),
+                 (int)pageResult.getContent().stream().filter(task -> task.isStatus()).count(),
+                 (int) pageResult.getTotalElements()
 //                (int) pageResult.getTotalElements() // Total count
         );
 
@@ -74,18 +74,23 @@ public class TasksService {
 
         return responseDTO;
     }
+    public Tasks updateStatus(Integer id,  ChangeStatusTodoDto newStatus) {
+        Tasks task =(Tasks) repository.findById(id).get();
+        if (task != null) {
+            task.setStatus(newStatus.getStatus());
+            repository.save(task);
+            return task;
+        } else {
+            return null; // Or throw an exception if the task is not found
+        }
+    }
 
-    public int getNumberOfElement() {
-        int numberOfElements =(int)repository.findAll().stream().count();
-        return numberOfElements;
-    }
-    public int getNotReady(){
-        int notReady =(int) repository.findAll().stream().filter(t -> t.isStatus() == false).count();
-        return notReady;
-    }
-    public int getReady(){
-        int ready=(int) repository.findAll().stream().filter(t -> t.isStatus() == true).count();
-        return ready;
+    public BaseSuccessResponse setAllStatus(ChangeStatusTodoDto status){
+         tasksList=repository.findAll();
+        tasksList.stream().forEach(tasks -> tasks.setStatus(status.getStatus()));
+        repository.saveAll(tasksList);
+        var responseDto=new BaseSuccessResponse(0,true);
+        return responseDto;
     }
 
 }
