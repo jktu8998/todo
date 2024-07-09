@@ -66,6 +66,17 @@ public class TodoController {
         return new BaseSuccessResponse(0,true);
     }
 
+    @DeleteMapping(value = "deleteById")
+    public BaseSuccessResponse deleteByid(@RequestParam(value = "id")Integer id){
+        return service.deleteById(id);
+    }
+
+    @DeleteMapping(value = "/deleteAllReady")
+    public BaseSuccessResponse deleteAllReady(){
+        return service.deleteAllReady();
+    }
+
+
 
 
 

@@ -6,6 +6,7 @@ import com.example.todo103.response.CustomSuccessResponse;
 import com.example.todo103.dto.GetNewsDto;
 import com.example.todo103.entity.Tasks;
 import com.example.todo103.repository.TasksRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -24,6 +26,12 @@ public class TasksService {
     }
 
 
+
+    private List<Tasks> getTodoList() {
+        tasksList=new ArrayList<>();
+        repository.findAll().stream().forEach(tasksList::add);
+        return tasksList;
+    }
 
     @Autowired
     public TasksService(TasksRepository repository) {
@@ -45,7 +53,6 @@ public class TasksService {
         ArrayList<Tasks> tasksList= (ArrayList<Tasks>) repository.findAll();
         return tasksList;
     }
-
 
     public CustomSuccessResponse<GetNewsDto>  getAll(Integer page, Integer perPage, Boolean  status) {
         Pageable pageable = PageRequest.of(page, perPage);
@@ -74,6 +81,7 @@ public class TasksService {
 
         return responseDTO;
     }
+
     public Tasks updateStatus(Integer id,  ChangeStatusTodoDto newStatus) {
         Tasks task =(Tasks) repository.findById(id).get();
         if (task != null) {
@@ -84,13 +92,24 @@ public class TasksService {
             return null; // Or throw an exception if the task is not found
         }
     }
-
     public BaseSuccessResponse setAllStatus(ChangeStatusTodoDto status){
-         tasksList=repository.findAll();
+        tasksList=repository.findAll();
         tasksList.stream().forEach(tasks -> tasks.setStatus(status.getStatus()));
         repository.saveAll(tasksList);
         var responseDto=new BaseSuccessResponse(0,true);
         return responseDto;
+    }
+    public BaseSuccessResponse deleteById(Integer id){
+        repository.deleteById(id);
+        return new BaseSuccessResponse(0,true);
+    }
+    public BaseSuccessResponse deleteAllReady(){
+        delete();
+        return new BaseSuccessResponse(0,true);
+    }
+
+    public void delete() {
+        repository.deleteAll(getTodoList().stream().filter(t -> t.isStatus() == true).toList());
     }
 
 }
