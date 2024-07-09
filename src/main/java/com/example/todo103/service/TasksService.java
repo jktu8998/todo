@@ -1,12 +1,13 @@
 package com.example.todo103.service;
 
 import com.example.todo103.dto.ChangeStatusTodoDto;
+import com.example.todo103.dto.CreatedTodoDto;
 import com.example.todo103.response.BaseSuccessResponse;
 import com.example.todo103.response.CustomSuccessResponse;
 import com.example.todo103.dto.GetNewsDto;
 import com.example.todo103.entity.Tasks;
 import com.example.todo103.repository.TasksRepository;
-import jakarta.persistence.criteria.CriteriaBuilder;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,17 +15,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.List;
 
 @Service
 public class TasksService {
     private final TasksRepository repository;
     private List<Tasks> tasksList;
-    public TasksRepository getRepository() {
-        return repository;
-    }
-
 
 
     private List<Tasks> getTodoList() {
@@ -99,10 +96,12 @@ public class TasksService {
         var responseDto=new BaseSuccessResponse(0,true);
         return responseDto;
     }
+
     public BaseSuccessResponse deleteById(Integer id){
         repository.deleteById(id);
         return new BaseSuccessResponse(0,true);
     }
+
     public BaseSuccessResponse deleteAllReady(){
         delete();
         return new BaseSuccessResponse(0,true);
@@ -110,6 +109,21 @@ public class TasksService {
 
     public void delete() {
         repository.deleteAll(getTodoList().stream().filter(t -> t.isStatus() == true).toList());
+    }
+
+    public Tasks updateText(Integer id, CreatedTodoDto text){
+        Tasks task =(Tasks) repository.findById(id).get();
+        if (task != null) {
+            task.setText(text.getText());
+            repository.save(task);
+            return task;
+        } else {
+            return null; // Or throw an exception if the task is not found
+        }
+    }
+    public BaseSuccessResponse setText(Integer id, CreatedTodoDto text){
+        updateText(id,text);
+        return new BaseSuccessResponse(0,true);
     }
 
 }

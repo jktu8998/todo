@@ -76,6 +76,13 @@ public class TodoController {
         return service.deleteAllReady();
     }
 
+    @PatchMapping(value = "patchText")
+    public BaseSuccessResponse setText(@RequestParam(value = "id")Integer id,
+                                       @RequestBody @Valid CreatedTodoDto text){
+
+        return service.setText(id,text);
+    }
+
 
 
 
