@@ -26,14 +26,15 @@ public class TodoController {
     }
 
     @PostMapping(value = "/create")
-    public CustomSuccessResponse<?> createTask(@RequestBody @Valid CreatedTodoDto text){
+    public ResponseEntity<?> createTask(@RequestBody @Valid CreatedTodoDto text){
         var task=new Tasks();
         task.setText(text.getText());
         service.create(task);
-        CustomSuccessResponse<Tasks> response=new CustomSuccessResponse<>();
-        response.setData(task);
-        response.setStatusCode(200);
-        response.setSuccess(true);
+        CustomSuccessResponse<Tasks> body=new CustomSuccessResponse<>();
+        body.setData(task);
+        body.setStatusCode(200);
+        body.setSuccess(true);
+        ResponseEntity<CustomSuccessResponse<Tasks>> response=new ResponseEntity<>(body,HttpStatus.OK);
         return response;
     }
 
@@ -44,43 +45,49 @@ public class TodoController {
     }
 
     @GetMapping(value = "/getPaginated")
-    public CustomSuccessResponse<?> getTodo(@RequestParam(value = "page", defaultValue = "1") @Min(1) Integer page,
+    public ResponseEntity<?> getTodo(@RequestParam(value = "page", defaultValue = "1") @Min(1) Integer page,
                                      @RequestParam(value = "perPage", defaultValue = "1")
                                      @Min(1)  Integer perPage,
                                      @RequestParam(value = "status",defaultValue = "false")boolean status){
 
-        CustomSuccessResponse<GetNewsDto>response=service.getAll(page,perPage,status);
+        CustomSuccessResponse<GetNewsDto>body=service.getAll(page,perPage,status);
+        ResponseEntity<CustomSuccessResponse<GetNewsDto>> response=new ResponseEntity<>(body,HttpStatus.OK);
         return response;
     }
 
     @PatchMapping(value = "/patch")
-    public BaseSuccessResponse setStatus(@RequestBody ChangeStatusTodoDto status){
-        return service.setAllStatus(status);
+    public ResponseEntity<?> setStatus(@RequestBody ChangeStatusTodoDto status){
+        BaseSuccessResponse body= service.setAllStatus(status);
+        return new ResponseEntity<>(body,HttpStatus.OK);
+
     }
 
     @PatchMapping(value = "/status")
-    public BaseSuccessResponse setByIdStatus(@RequestParam(value = "id")Integer id,
+    public ResponseEntity<?> setByIdStatus(@RequestParam(value = "id")Integer id,
                                              @RequestBody ChangeStatusTodoDto status){
-
-        service.updateStatus(id,status);
-        return new BaseSuccessResponse(0,true);
+         service.updateStatus(id,status);
+       BaseSuccessResponse body= new BaseSuccessResponse(0,true);
+        return new ResponseEntity<>(body,HttpStatus.OK);
     }
 
     @DeleteMapping(value = "deleteById")
-    public BaseSuccessResponse deleteByid(@RequestParam(value = "id")Integer id){
-        return service.deleteById(id);
+    public ResponseEntity<?> deleteByid(@RequestParam(value = "id")Integer id){
+        BaseSuccessResponse  body= service.deleteById(id);
+        return new ResponseEntity<>(body,HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/deleteAllReady")
-    public BaseSuccessResponse deleteAllReady(){
-        return service.deleteAllReady();
+    public ResponseEntity<?> deleteAllReady(){
+        BaseSuccessResponse bod= service.deleteAllReady();
+        return new ResponseEntity<>(bod,HttpStatus.OK);
+
     }
 
     @PatchMapping(value = "patchText")
-    public BaseSuccessResponse setText(@RequestParam(value = "id")Integer id,
+    public ResponseEntity<?> setText(@RequestParam(value = "id")Integer id,
                                        @RequestBody @Valid CreatedTodoDto text){
-
-        return service.setText(id,text);
+        BaseSuccessResponse body= service.setText(id,text);
+        return new ResponseEntity<>(body,HttpStatus.OK);
     }
 
 
